@@ -1,6 +1,6 @@
 ﻿namespace Akasha
 {
-    class Terminal
+    sealed class Terminal
     {
         public Terminal()
         {
@@ -10,7 +10,7 @@
         {
             Console.WriteLine("Terminal Activated.");
             using var ws = new ClientWebSocket();
-            await ws.ConnectAsync(new Uri("ws://localhost:8888/ws"), CancellationToken.None);
+            await ws.ConnectAsync(new Uri("ws://[::1]:8888/ws"), CancellationToken.None);
             byte[] buf = new byte[1056];
 
             while (ws.State == WebSocketState.Open)
@@ -29,7 +29,7 @@
             }
         }
     }
-    class Launcher
+    sealed class Launcher
     {
         public static async Task Main(string[] args)
         {

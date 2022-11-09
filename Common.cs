@@ -12,27 +12,27 @@ namespace Akasha
         {
 
         }
-        public class WSRegister : WSMessage
+        public sealed class WSRegister : WSMessage
         {
             public string? UserName { get; set; }
             public uint UID { get; set; }
             public byte[]? SecPassword { get; set; }
         }
-        public class WSLogin : WSMessage
+        public sealed class WSLogin : WSMessage
         {
             public uint UID { get; set; }
             public byte[]? SecPassword { get; set; }
         }
-        public class WSResponse : WSMessage
+        public sealed class WSResponse : WSMessage
         {
             public uint Code { get; set; }
         }
-        public class WSChatRequest : WSMessage
+        public sealed class WSChatRequest : WSMessage
         {
             public uint FromUID { get; set; }
             public uint ToUID { get; set; }
         }
-        public class WSChatMessage : WSMessage
+        public sealed class WSChatMessage : WSMessage
         {
             public string? FromUserName { get; set; }
             public uint FromUID { get; set; }
