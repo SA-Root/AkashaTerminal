@@ -12,33 +12,36 @@ namespace Akasha
         {
 
         }
-        public sealed class WSRegister : WSMessage
-        {
-            public string? UserName { get; set; }
-            public uint UID { get; set; }
-            public byte[]? SecPassword { get; set; }
-        }
-        public sealed class WSLogin : WSMessage
-        {
-            public uint UID { get; set; }
-            public byte[]? SecPassword { get; set; }
-        }
         public sealed class WSResponse : WSMessage
         {
-            public uint Code { get; set; }
+            public required uint Code { get; set; }
         }
+        //1
+        public sealed class WSRegister : WSMessage
+        {
+            public required string UserName { get; set; }
+            public required byte[] SecPassword { get; set; }
+        }
+        //2
+        public sealed class WSLogin : WSMessage
+        {
+            public required uint UID { get; set; }
+            public required byte[] SecPassword { get; set; }
+        }
+        //3
         public sealed class WSChatRequest : WSMessage
         {
-            public uint FromUID { get; set; }
-            public uint ToUID { get; set; }
+            public required uint FromUID { get; set; }
+            public required uint ToUID { get; set; }
         }
+        //4
         public sealed class WSChatMessage : WSMessage
         {
-            public string? FromUserName { get; set; }
-            public uint FromUID { get; set; }
-            public uint ToUID { get; set; }
-            public string? Content { get; set; }
-            public string? Timestamp { get; set; }
+            public required string FromUserName { get; set; }
+            public required uint FromUID { get; set; }
+            public required uint ToUID { get; set; }
+            public required string Content { get; set; }
+            public required string Timestamp { get; set; }
         }
         public static class Extensions
         {

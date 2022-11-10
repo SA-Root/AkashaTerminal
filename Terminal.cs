@@ -2,31 +2,26 @@
 {
     sealed class Terminal
     {
+        ClientWebSocket ws { get; set; }
         public Terminal()
         {
-
+            ws = new ClientWebSocket();
         }
         public async Task Activate()
         {
             Console.WriteLine("Terminal Activated.");
-            using var ws = new ClientWebSocket();
             await ws.ConnectAsync(new Uri("ws://[::1]:8888/ws"), CancellationToken.None);
-            byte[] buf = new byte[1056];
-
-            while (ws.State == WebSocketState.Open)
+            byte[] buf = new byte[4096];
+            var msgReg = new WSRegister
             {
-                var result = await ws.ReceiveAsync(buf, CancellationToken.None);
-
-                if (result.MessageType == WebSocketMessageType.Close)
-                {
-                    await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
-                    Console.WriteLine(result.CloseStatusDescription);
-                }
-                else
-                {
-                    Console.WriteLine(Encoding.ASCII.GetString(buf, 0, result.Count));
-                }
-            }
+                UserName = "TestUser",
+                SecPassword = "abcde".GetMD5()
+            };
+            var msgRegJsonBytes = JsonSerializer.SerializeToUtf8Bytes<WSMessage>(msgReg);
+            await ws.SendAsync(msgRegJsonBytes, WebSocketMessageType.Binary,
+                true, CancellationToken.None);
+            await ws.CloseAsync(WebSocketCloseStatus.NormalClosure,
+                null, CancellationToken.None);
         }
     }
     sealed class Launcher
