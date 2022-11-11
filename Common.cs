@@ -15,14 +15,17 @@ namespace Akasha
         public sealed class WSResponse : WSMessage
         {
             public required uint Code { get; set; }
+            public string? Msg { get; set; }
         }
         //1
+        //Response.Code = New UID
         public sealed class WSRegister : WSMessage
         {
             public required string UserName { get; set; }
             public required byte[] SecPassword { get; set; }
         }
         //2
+        //Success: Response.Code == UID
         public sealed class WSLogin : WSMessage
         {
             public required uint UID { get; set; }
