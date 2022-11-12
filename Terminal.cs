@@ -7,13 +7,17 @@
         string AkashaPrompt = "Akasha>";
         uint UID = 0;
         uint TargetUID = 0;
+        string TargetUserName = "";
         string UserName = "";
-        string UserPrompt = "";
         string Prompt
         {
             get
             {
-                if (UID > 0) return UserPrompt;
+                if (UID > 0)
+                {
+                    if (TargetUID > 0) return $"{UserName}({UID}):{TargetUserName}({TargetUID})>";
+                    else return $"{UserName}({UID})>";
+                }
                 else return AkashaPrompt;
             }
         }
@@ -23,7 +27,6 @@
         public Terminal()
         {
             ws = new ClientWebSocket();
-            UserPrompt = $"{UserName}({UID})>";
         }
         async Task SendRegisterMsgAsync(string userName, string pwd)
         {
@@ -44,9 +47,8 @@
                 {
                     if (msgResp.Code > 100_000)
                     {
-                        UserName = userName;
-                        UID = msgResp.Code;
-                        UserPrompt = $"{UserName}({UID})>";
+                        // UserName = userName;
+                        // UID = msgResp.Code;
                         Console.WriteLine("[INFO]Your New Account is Ready");
                     }
                 }
@@ -69,7 +71,7 @@
                 }
                 cpwd[pos++] = k.KeyChar;
             }
-            var pwd = cpwd.ToString() ?? "";
+            var pwd = new string(cpwd);
             Console.Write($"{AkashaPrompt}Confirm Your Password: ");
             pos = 0;
             while (true)
@@ -82,7 +84,7 @@
                 }
                 cpwd[pos++] = k.KeyChar;
             }
-            if (cpwd.ToString() == pwd)
+            if (new string(cpwd) == pwd)
             {
                 await SendRegisterMsgAsync(uname, pwd);
             }
@@ -129,7 +131,6 @@
                     {
                         UserName = msgResp.Msg ?? "NULL";
                         UID = msgResp.Code;
-                        UserPrompt = $"{UserName}({UID})>";
                     }
                 }
             }
@@ -159,9 +160,10 @@
                     if (msg is WSChatMessage ChatMsg)
                     {
                         Console.WriteLine();
+                        Console.WriteLine();
                         Console.WriteLine($"{ChatMsg.FromUserName}({ChatMsg.FromUID})>{ChatMsg.Content}");
                         Console.WriteLine();
-                        Console.WriteLine(Prompt);
+                        Console.Write(Prompt);
                     }
                 }
             }
@@ -189,9 +191,9 @@
                             await SendMsgAsync(line);
                         }
                     }
-                    if (cmd == "exit" || cmd == "quit")
+                    else if (cmd == "exit" || cmd == "quit")
                     {
-                        cts.Cancel();
+                        //cts.Cancel();
                         await ws.CloseAsync(WebSocketCloseStatus.NormalClosure,
                             null, CancellationToken.None);
                         break;
@@ -200,10 +202,11 @@
                     {
                         var sp = cmd.Split(' ', 2);
                         TargetUID = uint.Parse(sp[1]);
+
                     }
                     else
                     {
-                        Console.WriteLine("[ERROR]Unrecognized command");
+                        Console.WriteLine($"[ERROR]Unrecognized command: {line}");
                     }
                 }
                 else if (cmd == "register")
@@ -219,14 +222,14 @@
                 }
                 else if (cmd == "exit" || cmd == "quit")
                 {
-                    cts.Cancel();
+                    // cts.Cancel();
                     await ws.CloseAsync(WebSocketCloseStatus.NormalClosure,
                         null, CancellationToken.None);
                     break;
                 }
                 else
                 {
-                    Console.WriteLine("[ERROR]Unrecognized command");
+                    Console.WriteLine($"[ERROR]Unrecognized command: {line}");
                 }
             }
         }
@@ -235,6 +238,8 @@
     {
         public static async Task Main(string[] args)
         {
+            var a = "123456".GetMD5();
+            var b = "Gszroot402".GetMD5();
             var t = new Terminal();
             await t.Activate();
         }
