@@ -23,7 +23,7 @@
         }
         byte[] buf = new byte[4096];
         CancellationToken CTRecvService;
-        CancellationTokenSource cts;
+        CancellationTokenSource? cts;
         public Terminal()
         {
             ws = new ClientWebSocket();
@@ -49,7 +49,7 @@
                     {
                         // UserName = userName;
                         // UID = msgResp.Code;
-                        Console.WriteLine("[INFO]Your New Account is Ready");
+                        Console.WriteLine($"[INFO]Your New Account is Ready, UID: {msgResp.Code}");
                     }
                 }
             }
@@ -132,6 +132,10 @@
                         UserName = msgResp.Msg ?? "NULL";
                         UID = msgResp.Code;
                     }
+                    else
+                    {
+                        Console.WriteLine("[ERROR]Wrong UID or Password!");
+                    }
                 }
             }
         }
@@ -168,11 +172,26 @@
                 }
             }
         }
+        private async Task<int> Connect()
+        {
+            Console.Write($"{AkashaPrompt}Server Address: ");
+            var sip = Console.ReadLine() ?? "";
+            try
+            {
+                await ws.ConnectAsync(new Uri($"ws://{sip}/ws"), CancellationToken.None);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine($"[ERROR]Cannot connect to server {sip}");
+                return 1;
+            }
+            Console.WriteLine($"[INFO]Connected to server {sip}");
+            return 0;
+        }
         public async Task Activate()
         {
             Console.WriteLine("[INFO]Terminal Activated");
-            await ws.ConnectAsync(new Uri($"ws://{ServerIPPort}/ws"), CancellationToken.None);
-            Console.WriteLine($"[INFO]Connected to server {ServerIPPort}");
+            while (await Connect() > 0) ;
             while (true)
             {
                 Console.Write(Prompt);
@@ -193,9 +212,9 @@
                     }
                     else if (cmd == "exit" || cmd == "quit")
                     {
-                        //cts.Cancel();
                         await ws.CloseAsync(WebSocketCloseStatus.NormalClosure,
                             null, CancellationToken.None);
+                        cts?.Cancel();
                         break;
                     }
                     else if (cmd.StartsWith("chat "))
@@ -222,7 +241,6 @@
                 }
                 else if (cmd == "exit" || cmd == "quit")
                 {
-                    // cts.Cancel();
                     await ws.CloseAsync(WebSocketCloseStatus.NormalClosure,
                         null, CancellationToken.None);
                     break;
